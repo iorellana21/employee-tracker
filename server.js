@@ -17,32 +17,44 @@ database.connect(function (err) {
 });
 
 function askQuestions() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                message: "Enter First Name: ",
-                name: "first_name"
-            },
-            {
-                type: "input",
-                message: "Enter Last Name: ",
-                name: "last_name"
-            },
-            {
-                type: "list",
-                message: "What Department does employee belong to?",
-                choices: ["Administrative", "Developmetn", "Support", "Training"],
-                name: "department"
-            },
-            {
-                type: "list",
-                message: "Enter employee's Role: ",
-                choices: ["Administrator", "Developer", "Support", "Trainer", "Admin Manager", "Dev Manager", "Support Manager", "Training Manager"],
-                name: "role"
-            }
-        ])
-        .then(answers => {
-            console.log(answers);
-        });
+    inquirer.prompt({
+        type: "list",
+        message: "Choose an option:",
+        choices: [
+            "View all departments",
+            "View all roles",
+            "View all employees",
+            "Add department",
+            "Add role",
+            "Add employees",
+            "Update employee role",
+            "Exit"],
+        name: "choice"
+    }).then(function (answer) {
+        if (answer.choice === "View all departments") {
+            viewDepartments();
+        } else if (answer.choice === "View all roles") {
+            viewRoles();
+        } else if (answer.choice === "View all employees") {
+            viewEmployees();
+        } else if (answer.choice === "Add department") {
+            addDepartment();
+        } else if (answer.choice === "Add role") {
+            addRole();
+        } else if (answer.choice === "Add employees") {
+            addEmployee();
+        } else if (answer.choice === "Update employee role") {
+            updateEmployee();
+        } else {
+            connection.end();
+        }
+    });
 }
+
+function viewDepartments() { }
+function viewRoles() { }
+function viewEmployees() { }
+function addDepartment() { }
+function addRole() { }
+function addEmployee() { }
+function updateEmployee() { }
