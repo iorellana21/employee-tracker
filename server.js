@@ -61,7 +61,7 @@ function viewDepartments() {
     askQuestions();
 }
 
-function viewRoles() { 
+function viewRoles() {
     let query = "SELECT * FROM role";
     database.query(query, (err, res) => {
         if (err) throw err;
@@ -71,7 +71,7 @@ function viewRoles() {
     askQuestions();
 }
 
-function viewEmployees() { 
+function viewEmployees() {
     let query = "SELECT * FROM employee";
     database.query(query, (err, res) => {
         if (err) throw err;
@@ -81,7 +81,28 @@ function viewEmployees() {
     askQuestions();
 }
 
-function addDepartment() { }
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter new Department name:",
+            name: "newDepartment"
+        },
+    ]).then(function (answer) {
+        database.query(
+            "INSERT INTO department SET ?",
+            {
+                name: answer.newDepartment,
+            },
+            function (err) {
+                if (err) throw err;
+                console.log("Your department was successfully created.");
+                askQuestions();
+            }
+        );
+    });
+}
+
 function addRole() { }
 function addEmployee() { }
 function updateEmployee() { }
