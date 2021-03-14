@@ -51,9 +51,36 @@ function askQuestions() {
     });
 }
 
-function viewDepartments() { }
-function viewRoles() { }
-function viewEmployees() { }
+function viewDepartments() {
+    let query = "SELECT * FROM department";
+    database.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(`------ DEPARTMENTS ------`)
+        console.table(res);
+    });
+    askQuestions();
+}
+
+function viewRoles() { 
+    let query = "SELECT * FROM role";
+    database.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(`------ ROLES ------`);
+        console.table(res);
+    });
+    askQuestions();
+}
+
+function viewEmployees() { 
+    let query = "SELECT * FROM employee";
+    database.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(`------ EMPLOYEES ------`);
+        console.table(res);
+    })
+    askQuestions();
+}
+
 function addDepartment() { }
 function addRole() { }
 function addEmployee() { }
