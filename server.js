@@ -12,7 +12,6 @@ const database = mysql.createConnection({
 database.connect(function (err) {
     if (err) throw err;
     console.log('connected as id ' + database.threadId);
-    // connection.end();
     askQuestions();
 });
 
@@ -46,7 +45,7 @@ function askQuestions() {
         } else if (answer.choice === "Update employee role") {
             updateEmployee();
         } else {
-            connection.end();
+            database.end();
         }
     });
 }
@@ -55,6 +54,7 @@ function viewDepartments() {
     let query = "SELECT * FROM department";
     database.query(query, (err, res) => {
         if (err) throw err;
+        console.table(` `);
         console.table(`------ DEPARTMENTS ------`)
         console.table(res);
     });
@@ -65,6 +65,7 @@ function viewRoles() {
     let query = "SELECT * FROM role";
     database.query(query, (err, res) => {
         if (err) throw err;
+        console.table(` `);
         console.table(`------ ROLES ------`);
         console.table(res);
     });
@@ -75,6 +76,7 @@ function viewEmployees() {
     let query = "SELECT * FROM employee";
     database.query(query, (err, res) => {
         if (err) throw err;
+        console.table(` `);
         console.table(`------ EMPLOYEES ------`);
         console.table(res);
     })
@@ -103,6 +105,167 @@ function addDepartment() {
     });
 }
 
-function addRole() { }
-function addEmployee() { }
-function updateEmployee() { }
+function addRole() {
+    database.query("SELECT * FROM department", (err, res) => {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: "input",
+                message: "Enter new Role:",
+                name: "newRole"
+            },
+            {
+                type: "input",
+                message: "How much is the annual salary?",
+                name: "salary"
+            },
+            {
+                type: "rawList",
+                message: "Which Department does this Role belong to?",
+                choices: function () {
+                    let choicesArray = [];
+                    res.forEach(res => { choicesArray.push(res.name) });
+                    return choicesArray;
+                },
+                name: "department"
+            }
+        ]).then(function (answer) {
+            const dept = answer.department;
+            database.query('SELECT * FROM department', (err, res) => {
+
+                if (err) throw (err);
+                let filteredDept = res.filter(res => {
+                    return res.name == dept;
+                });
+
+                let id = filteredDept[0].id;
+                database.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+                    [
+                        answer.newRole,
+                        parseInt(answer.salary),
+                        id
+                    ],
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`You have added this role: ${(answer.newRole).toUpperCase()} successfully.`)
+                    })
+                viewRoles();
+            });
+        });
+    });
+}
+
+function addEmployee() {
+    database.query("SELECT * FROM role", (err, res) => {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: "input",
+                message: "What is the employee's first name?",
+                name: "first_name",
+            },
+            {
+                type: "input",
+                message: "What is the employee's last name?",
+                name: "last_name"
+            },
+            {
+                type: "rawList",
+                message: "Which Role does the employee belong to?",
+                choices: function () {
+                    let choicesArray = [];
+                    res.forEach(res => {
+                        choicesArray.push(res.title);
+                    });
+                    return choicesArray;
+                },
+                name: "role"
+            }
+        ]).then(function (answer) {
+            const role = answer.role;
+            database.query('SELECT * FROM role', (err, res) => {
+
+                if (err) throw (err);
+                let filteredRole = res.filter(res => {
+                    return res.title == role;
+                });
+
+                let id = filteredRole[0].id;
+                database.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)",
+                    [
+                        answer.first_name,
+                        answer.last_name,
+                        id
+                    ],
+                    function (err) {
+                        if (err) throw err;
+                        console.log(`You have added this employee: ${(answer.first_name)} ${(answer.last_name)} successfully.`)
+                    });
+                viewEmployees();
+            });
+        });
+    });
+}
+
+function updateEmployee() {
+    database.query("SELECT * FROM employee", (err, res) => {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: "rawList",
+                message: "Which employee would you like to update? Please enter their last name.",
+                choices: function () {
+                    chosenEmployee = [];
+                    res.forEach(res => {
+                        chosenEmployee.push(res.last_name);
+                    });
+                    return chosenEmployee;
+                },
+                name: "employee"
+            }
+        ]).then(function (answer) {
+            const changeEmployee = answer.employee;
+
+            console.log("Employee Chosen: " + changeEmployee);
+
+            database.query("SELECT * FROM role", (err, res) => {
+                if (err) throw err;
+                inquirer.prompt([
+                    {
+                        type: "rawList",
+                        message: "What is this employees new role?",
+                        choices: function () {
+                            newRole = [];
+                            res.forEach(res => {
+                                newRole.push(res.title);
+                                //push new role into the role title db
+                            });
+                            return newRole;
+                        },
+                        name: "newRole"
+                    }
+                ]).then(function (update) {
+                    const updatedRole = update.newRole;
+                    console.log("Updated Role: " + updatedRole);
+
+                    database.query('SELECT * FROM role WHERE title = ?', [updatedRole], (err, res) => {
+                        if (err) throw (err);
+
+                        let roleID = res[0].id;
+                        console.log("ROLE id : " + roleID);
+
+                        let params = [roleID, changeEmployee];
+
+                        database.query("UPDATE employee SET role_id = ? WHERE last_name = ?", params,
+                            (err, res) => {
+                                if (err) throw (err);
+                                console.log(`You have updated ${changeEmployee}'s role to ${updatedRole}.`)
+                            });
+                        viewEmployees();
+                    });
+                });
+            });
+        });
+    });
+}
+
