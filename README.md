@@ -19,7 +19,7 @@ The Employee Tracker application is intended to be a CMS for managing a company'
     * Update Employee Role
 ---
 ## Demo
-![demo]()
+![demo](./assets/demo_employee-tracker.gif)
 ---
 ## Credits
 * [NPM](https://www.npmjs.com/)
@@ -30,6 +30,6 @@ The Employee Tracker application is intended to be a CMS for managing a company'
 ---
 ## Links
 ### Screencastify
-* [Recording Link]()
+* [Recording Link](https://drive.google.com/file/d/106A6xVBu8SUUuDEASRlanAjDgS8KCGbe/view)
 ### GitHub URL
 * https://github.com/iorellana21/employee-tracker
